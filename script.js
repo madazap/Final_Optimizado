@@ -15,6 +15,8 @@ const cambio = [
   { id: "EUR", valor: 1.2 },
 ];
 
+const DateTime =luxon.DateTime;
+
 let valor_consulta={ moneda:"", criptomoneda:"",};
 
 const lista0=document.getElementById("moneda");
@@ -117,6 +119,11 @@ class cotizar {
 
     mostrarHTML(resultado){
         let pre, vari;
+        let actualizaHora=DateTime.now();
+        //Objeto hora de actualizacion, para parecer que estamos haciendo una colsulta modofico la hora unos minutos
+        //en este caso resto 8 min a la hora real.
+        let horaImp=actualizaHora.minus({minutes:8});
+        
         [pre,vari]=resultado;
         const parrafoR=document.createElement(`p`);
         parrafoR.classList.add(`precio`);
@@ -125,9 +132,14 @@ class cotizar {
         const parrafoV = document.createElement(`p`);        
         parrafoV.innerHTML = `Hubo una varianza porcentual de: <span>${vari}  </span>`;
 
+        
+        const parrafoH = document.createElement(`p`);
+        parrafoH.innerHTML = `Ultima actualizacion Hoy <span>${horaImp.toLocaleString(DateTime.TIME_WITH_SECONDS)}  </span>`;
+
 
          hmtlResultado.appendChild(parrafoR);
          hmtlResultado.appendChild(parrafoV);
+         hmtlResultado.appendChild(parrafoH);
 
     }
 
@@ -138,8 +150,7 @@ formulario.addEventListener(`submit`, validar);
 
 function validar(e){
   e.preventDefault();
-  //let mon=lista0.options[lista0.selectedIndex].value;
-  //let cp = lista1.options[lista1.selectedIndex].value;
+ 
   // operador logico para definir si hay opcion valida voy a deconstruir el objeto
   const { moneda, criptomoneda } = valor_consulta;
   const valor = new cotizar(moneda, criptomoneda);
