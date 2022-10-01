@@ -1,11 +1,14 @@
 
 const cryptoA = [
-  { id: "BTC", nombre: "Bitcoin", valor: 32400,},
+  { id: "BTC", nombre: "Bitcoin", valor: 32400 },
   { id: "ETH", nombre: "Ethereum", valor: 3200 },
   { id: "XRP", nombre: "XRP", valor: 415 },
-  { id: "BNC", nombre: "Binance Coin", valor: 15 },
-  { id: "SLN", nombre: "Solana", valor: 11 },
-  { id: "UCO", nombre: "USD Coin", valor: 415 }];
+  { id: "BNB", nombre: "Binance Coin", valor: 15 },
+  { id: "USDT", nombre: "Tether", valor: 11 },
+  { id: "USDC", nombre: "USD Coin", valor: 415 },
+  { id: "SOL", nombre: "Solana", valor: 415 },
+  { id: "DOGE", nombre: "Dodge Coin", valor: 415 },
+];
 
 
 const cambio = [
@@ -13,6 +16,7 @@ const cambio = [
   { id: "COP", valor: 4200 },
   { id: "GBP", valor: 1.4 },
   { id: "EUR", valor: 1.2 },
+  { id: "RUB", valor: 1.2 },
 ];
 
 const DateTime =luxon.DateTime;
@@ -40,70 +44,35 @@ class cotizar {
         this.crypto = crypto;
     }
 
-    getValor(){
-        let resultado;
-        switch (valor_consulta.criptomoneda) {
-            // calculamos el nuevo valor de la crypto y pasamos la varianza
-            
-            case "BTC":
-            // Destructuring
-            const [mon1]=cryptoA;
-            resultado=this.variable(mon1.valor);
-            
-            break;
-          
-            case "ETH":
-           const [,mon2] = cryptoA;
-           resultado = this.variable(mon2.valor);
-            
-            break;
-            case "XRP":
-            const [, , mon3] = cryptoA;
-            resultado = this.variable(mon3.valor);
-            break;
-
-            case "BNC":
-            const [, , , mon4] = cryptoA;
-            resultado = this.variable(mon4.valor);
-            break;
-          
-            case "SLN":
-            const [, , , , mon5] = cryptoA;
-            resultado = this.variable(mon5.valor);
-            break;
-          
-            case "UCO":
-            const [, , , , ,mon6] = cryptoA;
-            resultado = this.variable(mon6.valor);
-            break;
-
-        }
-        
-        this.mostrarHTML(resultado);
-         
-        //document.getElementById(`resultado`).innerHTML=resultado;
-
-    }
 
     evaluaOpc(){
             
-            const uno= (this.moneda==="") ? true :false;
-            const dos= (this.crypto==="") ? true: false;
-
+            const existeE=document.querySelector('.error');
+            const uno= (this.moneda=="") ? false :true;
+            const dos= (this.crypto=="") ? false: true;
+            console.log(uno + " variables antes de evaluar " + dos);
+        
+         //  se ha seleccionado una opcion valida
         if(uno && dos){
-            // no se ha seleccionado una opcion valida
-           const mensaje=document.createElement(`div`);
-           mensaje.classList.add(`error`);
-           mensaje.textContent="Selecciona una opcion valida";
-           formulario.appendChild(mensaje);
-            setTimeout(()=>{
-                mensaje.remove();
-            },4000);
-            return false;
+           
+           return true; 
+           
         }
         else{
-            return true;
+            if (!existeE) {
+              //impedir que se ejecute el div de error varias veces
+
+              const mensaje = document.createElement(`div`);
+              mensaje.classList.add(`error`);
+              mensaje.textContent = "Selecciona una opcion valida";
+              formulario.appendChild(mensaje);
+              setTimeout(() => {
+                mensaje.remove();
+              }, 4000);
+              return false;
+            }
         }
+
     }
     
     variable(total){
@@ -118,30 +87,73 @@ class cotizar {
     }
 
     mostrarHTML(resultado){
-        let pre, vari;
+        
+        const {PRICE, HIGHDAY, LOWDAY, CHANGEPCT24HOUR}=resultado;
+        
+        this.limpiarHTML();
+       
         let actualizaHora=DateTime.now();
         //Objeto hora de actualizacion, para parecer que estamos haciendo una colsulta modofico la hora unos minutos
         //en este caso resto 8 min a la hora real.
         let horaImp=actualizaHora.minus({minutes:8});
         
-        [pre,vari]=resultado;
-        const parrafoR=document.createElement(`p`);
-        parrafoR.classList.add(`precio`);
-        parrafoR.innerHTML= `El precio actual es: <span>${pre}</span>`;
-       
-        const parrafoV = document.createElement(`p`);        
-        parrafoV.innerHTML = `Hubo una varianza porcentual de: <span>${vari}  </span>`;
+        const ExisteP=document.querySelector(`.precio`);
+
+            if(!ExisteP){
+                    const parrafoR = document.createElement(`p`);
+                    parrafoR.classList.add(`precio`);
+                    parrafoR.innerHTML = `El precio actual es: <span>${PRICE}</span>`;
+
+                    const parrafoV = document.createElement(`p`);
+                    parrafoV.innerHTML = `Hubo una varianza de: <span>${CHANGEPCT24HOUR} % </span>`;
+
+                    const parrafoH = document.createElement(`p`);
+                    parrafoH.innerHTML = `Ultima actualizacion <span>${horaImp.toLocaleString(
+                      DateTime.TIME_WITH_SECONDS
+                    )}  </span>`;
+
+                    const parrafoBajo = document.createElement(`p`);
+                    parrafoBajo.innerHTML = `Precio mas bajo de hoy <span>${LOWDAY}  </span>`;
+
+                    const parrafoAlto = document.createElement(`p`);
+                    parrafoAlto.innerHTML = `Precio mas alto de hoy <span>${HIGHDAY}  </span>`;
+
+                    hmtlResultado.appendChild(parrafoR);
+                    hmtlResultado.appendChild(parrafoV);
+                    hmtlResultado.appendChild(parrafoH);
+                    hmtlResultado.appendChild(parrafoBajo);
+                    hmtlResultado.appendChild(parrafoAlto);
+            }
+
+            else{
+                return;
+            }
 
         
-        const parrafoH = document.createElement(`p`);
-        parrafoH.innerHTML = `Ultima actualizacion Hoy <span>${horaImp.toLocaleString(DateTime.TIME_WITH_SECONDS)}  </span>`;
 
-
-         hmtlResultado.appendChild(parrafoR);
-         hmtlResultado.appendChild(parrafoV);
-         hmtlResultado.appendChild(parrafoH);
 
     }
+
+    consultasApi(){
+
+            const { moneda, criptomoneda } = valor_consulta;
+            console.log(moneda + " valores del fecth  " + criptomoneda);
+            const url = `https://min-api.cryptocompare.com/data/pricemultifull?fsyms=${criptomoneda}&tsyms=${moneda}`;
+
+            fetch(url)
+              .then((respuesta) => respuesta.json())
+              .then((cotizacion) => {
+                //console.log(cotizacion.DISPLAY[criptomoneda][moneda]);
+                this.mostrarHTML(cotizacion.DISPLAY[criptomoneda][moneda]);
+              });
+
+    }
+
+   limpiarHTML(){
+       while(hmtlResultado.firstChild){
+           hmtlResultado.removeChild(hmtlResultado.firstChild);
+       }
+   }
 
 }
 formulario.addEventListener(`change`, leoValor);
@@ -155,10 +167,13 @@ function validar(e){
   const { moneda, criptomoneda } = valor_consulta;
   const valor = new cotizar(moneda, criptomoneda);
   //creado desde los campos para usar las funciones que se piden en el desafio
-  valor.evaluaOpc() && valor.getValor();
+
+  valor.evaluaOpc() && valor.consultasApi();
+  
 }
 
 function leoValor(e){
     valor_consulta[e.target.name]=e.target.value;
     console.log(valor_consulta);
 }
+
