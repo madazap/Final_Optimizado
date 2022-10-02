@@ -174,6 +174,8 @@ function validar(e){
 
 function leoValor(e){
     valor_consulta[e.target.name]=e.target.value;
+    localStorage.setItem(`moneda`,valor_consulta.moneda);
+    localStorage.setItem(`criptomoneda`, valor_consulta.criptomoneda);
     console.log(valor_consulta);
 }
 
